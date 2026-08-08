@@ -13,13 +13,11 @@ import router from './router'
     Estilos Globales
 ==========================================*/
 
-import './assets/css/reset.css'
+import './assets/css/base/reset.css'
 
-import './assets/css/variables.css'
+import './assets/css/base/variables.css'
 
-//import './assets/css/global.css'
-
-import './assets/css/login.css'
+//import './assets/css/views/login.css'
 
 /*==========================================
     Aplicación

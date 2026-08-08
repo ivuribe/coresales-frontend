@@ -1,0 +1,182 @@
+/*==================================================
+  CoreSales Modern
+  Dashboard
+===================================================*/
+
+/*==========================================
+  DASHBOARD
+==========================================*/
+
+.dashboard {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: var(--space-8);
+}
+
+/*==========================================
+  BIENVENIDA
+==========================================*/
+
+.welcome {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 32px;
+}
+
+.welcome-content {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.welcome-content h1 {
+  margin: 0;
+
+  font-size: 2rem;
+
+  font-weight: 700;
+
+  color: var(--text-primary);
+}
+
+.welcome-content p {
+  margin-top: 8px;
+
+  color: var(--text-secondary);
+
+  font-size: 1rem;
+
+  line-height: 1.6;
+}
+
+.welcome-date {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 6px;
+}
+
+.welcome-date .label {
+  color: var(--text-secondary);
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08rem;
+
+  font-size: 0.75rem;
+}
+
+.welcome-date .value {
+  color: var(--text-primary);
+
+  font-size: 1rem;
+
+  font-weight: 600;
+}
+
+/*==========================================
+  KPIs
+==========================================*/
+
+.kpis {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 24px;
+}
+
+/*==========================================
+  GRID PRINCIPAL
+==========================================*/
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns: repeat(12, 1fr);
+
+  gap: 24px;
+}
+
+/*==========================================
+  CHARTS
+==========================================*/
+
+.dashboard-grid canvas {
+  width: 100% !important;
+
+  height: 320px !important;
+}
+
+/*==========================================
+  ANIMACIÓN
+==========================================*/
+
+.dashboard {
+  animation: dashboardFade 0.45s ease;
+}
+
+@keyframes dashboardFade {
+  from {
+    opacity: 0;
+
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform: translateY(0);
+  }
+}
+
+/*==========================================
+  RESPONSIVE
+==========================================*/
+
+@media (max-width: 1400px) {
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .welcome-date {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .welcome-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .welcome-content p {
+    font-size: 0.9rem;
+  }
+}
