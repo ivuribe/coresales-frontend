@@ -1,28 +1,34 @@
 <template>
   <!--==========================================
-            Ventas
-        ===========================================-->
+        Gráfico de ventas
+    ===========================================-->
 
   <div class="panel large">
     <h2>Ventas Mensuales</h2>
 
-    <canvas ref="salesChart"></canvas>
+    <div class="chart-container">
+      <canvas ref="salesChart"></canvas>
+    </div>
   </div>
 
   <!--==========================================
-            Productos
-        ===========================================-->
+        Gráfico de productos
+    ===========================================-->
 
   <div class="panel small">
     <h2>Productos por Categoría</h2>
 
-    <canvas ref="productsChart"></canvas>
+    <div class="chart-container">
+      <canvas ref="productsChart"></canvas>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 
+import Chart from 'chart.js/auto'
+/*
 import {
   Chart,
   BarController,
@@ -52,6 +58,7 @@ Chart.register(
 
   Legend,
 )
+*/
 
 /*==================================================
     Referencias
@@ -65,14 +72,16 @@ const productsChart = ref(null)
     Inicialización
 ==================================================*/
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
+
   createSalesChart()
 
   createProductsChart()
 })
 
 /*==================================================
-    Ventas
+    Gráfico de ventas
 ==================================================*/
 
 function createSalesChart() {
@@ -92,19 +101,65 @@ function createSalesChart() {
             data: [12000, 18000, 15000, 22000, 28000, 32000],
           },
         ],
+        backgroundColor: '#2563EB',
+
+        borderColor: '#2563EB',
+
+        borderWidth: 1,
+
+        borderRadius: 6,
+
+        hoverBackgroundColor: '#1D4ED8',
       },
 
       options: {
         responsive: true,
 
         maintainAspectRatio: false,
+
+        plugins: {
+          legend: {
+            display: true,
+
+            labels: {
+              color: '#64748B',
+
+              font: {
+                size: 12,
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: {
+              color: '#E2E8F0',
+            },
+
+            ticks: {
+              color: '#64748B',
+            },
+          },
+
+          y: {
+            beginAtZero: true,
+
+            grid: {
+              color: '#E2E8F0',
+            },
+
+            ticks: {
+              color: '#64748B',
+            },
+          },
+        },
       },
     },
   )
 }
 
 /*==================================================
-    Productos
+    Gráfico de productos
 ==================================================*/
 
 function createProductsChart() {
@@ -119,15 +174,15 @@ function createProductsChart() {
 
         datasets: [
           {
-            data: [
-              45,
+            data: [45, 25, 20, 10],
 
-              25,
+            backgroundColor: ['#2563EB', '#22C55E', '#F59E0B', '#EF4444'],
 
-              20,
+            borderColor: '#FFFFFF',
 
-              10,
-            ],
+            borderWidth: 3,
+
+            hoverOffset: 8,
           },
         ],
       },
@@ -136,6 +191,24 @@ function createProductsChart() {
         responsive: true,
 
         maintainAspectRatio: false,
+
+        cutout: '60%',
+
+        plugins: {
+          legend: {
+            position: 'top',
+
+            labels: {
+              color: '#64748B',
+
+              padding: 15,
+
+              font: {
+                size: 12,
+              },
+            },
+          },
+        },
       },
     },
   )
