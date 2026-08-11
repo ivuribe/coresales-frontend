@@ -1,14 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import Login from '../components/view/LoginView.vue'
-import Dashboard from '../components/view/DashboardView.vue'
+import LoginView from '../components/view/LoginView.vue'
+import DashboardView from '../components/view/DashboardView.vue'
 import MainLayout from '@/components/layout/MainLayout.vue'
+import ClientesView from '@/components/view/ClientesView.vue'
+import ProductosView from '@/components/view/ProductosView.vue'
+import VentasView from '@/components/view/VentasView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Login',
-    component: Login,
+    component: LoginView,
   },
   {
     path: '/',
@@ -18,7 +21,22 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: Dashboard,
+        component: DashboardView,
+      },
+      {
+        path: 'clientes',
+        name: 'Clientes',
+        component: ClientesView,
+      },
+      {
+        path: 'productos',
+        name: 'Productos',
+        component: ProductosView,
+      },
+      {
+        path: 'ventas',
+        name: 'Ventas',
+        component: VentasView,
       },
     ],
   },
