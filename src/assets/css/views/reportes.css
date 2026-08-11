@@ -1,0 +1,574 @@
+/*==================================================
+  CoreSales Modern
+  Reportes
+===================================================*/
+
+/*==========================================
+  CONTENEDOR
+==========================================*/
+
+.reportes {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+/*==========================================
+  HEADER
+==========================================*/
+
+.page-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.page-header h1 {
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 1.8rem;
+}
+
+.page-header p {
+  margin-top: 6px;
+
+  color: var(--text-secondary);
+}
+
+/*==========================================
+  BOTONES
+==========================================*/
+
+.btn-primary {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 11px 18px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-filter {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 11px 18px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+/*==========================================
+  FILTROS
+==========================================*/
+
+.report-filters {
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 18px;
+
+  padding: 20px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--border-radius-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.filter-group label {
+  font-size: 0.8rem;
+
+  font-weight: 600;
+
+  color: var(--text-primary);
+}
+
+.filter-group input,
+.filter-group select {
+  min-width: 180px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border-color);
+
+  border-radius: 9px;
+
+  background: var(--surface);
+
+  color: var(--text-primary);
+
+  outline: none;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: var(--primary);
+}
+
+/*==========================================
+  RESUMEN
+==========================================*/
+
+.report-summary {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 20px;
+}
+
+.report-card {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 20px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border-color);
+
+  border-radius: var(--border-radius-lg);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.report-card-icon {
+  width: 50px;
+
+  height: 50px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  border-radius: 13px;
+
+  color: white;
+}
+
+.report-card-icon.blue {
+  background: var(--primary);
+}
+
+.report-card-icon.green {
+  background: var(--success);
+}
+
+.report-card-icon.orange {
+  background: var(--warning);
+}
+
+.report-card-icon.purple {
+  background: #7c3aed;
+}
+
+.report-card > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.report-card span {
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+}
+
+.report-card strong {
+  color: var(--text-primary);
+
+  font-size: 1.25rem;
+}
+
+/*==========================================
+  GRÁFICOS
+==========================================*/
+
+.charts-grid {
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+.chart-panel {
+  min-width: 0;
+}
+
+.panel-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 20px 20px 0;
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 1rem;
+}
+
+.panel-header p {
+  margin: 5px 0 0;
+
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+}
+
+.chart-container {
+  position: relative;
+
+  height: 320px;
+
+  padding: 20px;
+}
+
+/*==========================================
+  TABLA
+==========================================*/
+
+.report-table-panel {
+  overflow: hidden;
+}
+
+.table-container {
+  overflow-x: auto;
+
+  padding: 0 20px 20px;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--gray-50);
+}
+
+th {
+  padding: 14px 16px;
+
+  text-align: left;
+
+  color: var(--text-secondary);
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+}
+
+td {
+  padding: 15px 16px;
+
+  border-top: 1px solid var(--border-color);
+
+  color: var(--text-primary);
+}
+
+.client-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.client-info small {
+  color: var(--text-secondary);
+
+  font-size: 0.75rem;
+}
+
+.report-counter {
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+}
+
+/*==========================================
+  ESTADOS
+==========================================*/
+
+.status {
+  display: inline-block;
+
+  padding: 5px 10px;
+
+  border-radius: 20px;
+
+  font-size: 0.75rem;
+
+  font-weight: 600;
+}
+
+.status.completed {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+.status.pending {
+  background: #fef3c7;
+
+  color: #b45309;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+/*==========================================
+  VACÍO
+==========================================*/
+
+.empty {
+  padding: 50px !important;
+
+  text-align: center;
+
+  color: var(--text-secondary);
+}
+
+.empty i {
+  display: block;
+
+  margin-bottom: 10px;
+
+  font-size: 2rem;
+}
+
+/*==========================================
+  INVENTARIO
+==========================================*/
+
+.inventory-alerts {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+
+  padding: 20px;
+}
+
+.inventory-alert {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 18px;
+
+  border-radius: 12px;
+}
+
+.inventory-alert .alert-icon {
+  width: 44px;
+
+  height: 44px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  border-radius: 10px;
+}
+
+.inventory-alert > div:last-child {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.inventory-alert span {
+  font-size: 0.8rem;
+}
+
+.inventory-alert strong {
+  font-size: 1.3rem;
+}
+
+.inventory-alert.danger {
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+.inventory-alert.danger .alert-icon {
+  background: #fee2e2;
+}
+
+.inventory-alert.warning {
+  background: #fffbeb;
+
+  color: #b45309;
+}
+
+.inventory-alert.warning .alert-icon {
+  background: #fef3c7;
+}
+
+.inventory-alert.success {
+  background: #f0fdf4;
+
+  color: #15803d;
+}
+
+.inventory-alert.success .alert-icon {
+  background: #dcfce7;
+}
+
+/*==========================================
+  IMPRESIÓN
+==========================================*/
+
+@media print {
+  .sidebar,
+  .header,
+  .footer,
+  .btn-primary,
+  .report-filters {
+    display: none !important;
+  }
+
+  .main-content {
+    margin: 0 !important;
+
+    padding: 0 !important;
+  }
+
+  .reportes {
+    gap: 15px;
+  }
+
+  .panel,
+  .report-card {
+    box-shadow: none;
+
+    border: 1px solid #ddd;
+  }
+}
+
+/*==========================================
+  RESPONSIVE
+==========================================*/
+
+@media (max-width: 1200px) {
+  .report-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 16px;
+  }
+
+  .report-filters {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .filter-group input,
+  .filter-group select {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .btn-filter {
+    width: 100%;
+  }
+
+  .report-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-alerts {
+    grid-template-columns: 1fr;
+  }
+}

@@ -7,6 +7,7 @@ import ClientesView from '@/components/view/ClientesView.vue'
 import ProductosView from '@/components/view/ProductosView.vue'
 import VentasView from '@/components/view/VentasView.vue'
 import InventarioView from '@/components/view/InventarioView.vue'
+import ReportesView from '@/components/view/ReportesView.vue'
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
         path: 'inventario',
         name: 'Inventario',
         component: InventarioView,
+      },
+      {
+        path: 'reportes',
+        name: 'Reportes',
+        component: ReportesView,
       },
     ],
   },
