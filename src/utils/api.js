@@ -12,6 +12,9 @@ const api = axios.create({
 // ==================================================
 api.interceptors.request.use(
   (config) => {
+    console.log('URL del llamado: ' + config.url)
+    if (config.url === '/api/auth/login') return config
+
     const token = localStorage.getItem('coresales_token')
 
     if (token) {

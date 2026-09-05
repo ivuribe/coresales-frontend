@@ -1,11 +1,11 @@
-import api from './api'
+import api from '@/utils/api'
 
 // ==================================================
 // LISTAR
 // ==================================================
 
 export const getCustomers = async () => {
-  const response = await api.get('/api/customers')
+  const response = await api.get('/api/customers/listar')
 
   return response.data
 }

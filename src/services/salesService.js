@@ -1,4 +1,4 @@
-import api from './api'
+import api from '@/utils/api'
 
 export const getSales = async () => {
   const response = await api.get('/api/sales')

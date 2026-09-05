@@ -1,35 +1,27 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { login as loginService } from '@/services/authService'
 
 /*==================================================
     Variable de enrutamiento
 ==================================================*/
-
 const router = useRouter()
 
 /*==================================================
     Variables reactivas
 ==================================================*/
-
 const username = ref('')
-
 const password = ref('')
-
 const remember = ref(false)
-
 const loading = ref(false)
-
 const showPassword = ref(false)
-
 const message = ref('')
-
 const messageType = ref('')
 
 /*==================================================
     Inicialización
 ==================================================*/
-
 onMounted(() => {
   loadRememberedUser()
 })
@@ -37,46 +29,116 @@ onMounted(() => {
 /*==================================================
     Login
 ==================================================*/
-
 const login = async () => {
   if (!validate()) return
 
   loading.value = true
+  message.value = ''
+  messageType.value = ''
 
-  await delay(4000)
+  try {
+    /*
+     * Llamada al servicio de autenticación.
+     *
+     * authService.js
+     *      ↓
+     * api.js
+     *      ↓
+     * API Gateway :8080
+     *      ↓
+     * service-user-auth :8081
+     */
+    console.log('usuario:' + username.value)
+    console.log('password:' + password.value)
 
-  /*
-        Simulación
+    const result = await loginService(username.value, password.value)
 
-        Usuario:
-        admin
+    /*
+     * El backend debe devolver el JWT.
+     *
+     * Se consideran ambas posibilidades:
+     * {
+     *   "token": "eyJ..."
+     * }
+     *
+     * o
+     *
+     * {
+     *   "accessToken": "eyJ..."
+     * }
+     */
+    const token = result.token || result.accessToken
 
-        Contraseña:
-        admin123
-    */
+    if (!token) {
+      throw new Error('El servidor no devolvió el token de autenticación.')
+    }
 
-  if (username.value === 'admin' && password.value === 'admin123') {
+    /*
+     * Guardamos el JWT para que api.js
+     * pueda enviarlo automáticamente
+     * en las siguientes peticiones.
+     */
+    localStorage.setItem('coresales_token', token)
+
+    /*
+     * Recordar usuario
+     */
     saveRememberUser()
+    showMessage('Inicio de sesión correcto.', 'success')
 
-    showMessage(
-      'Inicio de sesión correcto.',
-
-      'success',
-    )
-
+    /*
+     * Esperamos un momento para mostrar
+     * el mensaje de éxito y luego
+     * navegamos al dashboard.
+     */
     setTimeout(() => {
       //window.location.href = 'index.html'
       router.push('/dashboard')
     }, 3000)
-  } else {
-    showMessage(
-      'Usuario o contraseña incorrectos.',
+  } catch (error) {
+    console.error('Error en el inicio de sesión:', error)
+    /*
+     * Error 401:
+     * usuario o contraseña incorrectos.
+     */
+    if (error.response?.status === 401) {
+      showMessage('Usuario o contraseña incorrectos.', 'error')
 
-      'error',
-    )
+      /*
+       * Error 403:
+       * acceso no permitido.
+       */
+    } else if (error.response?.status === 403) {
+      showMessage('No tiene permisos para acceder al sistema.', 'error')
+
+      /*
+       * Error 500:
+       * error interno de servidor.
+       */
+    } else if (error.response?.status === 500) {
+      showMessage('Ocurrió un error interno.', 'error')
+
+      /*
+       * Gateway / servicio no disponible
+       */
+    } else if (error.code === 'ERR_NETWORK' || !error.response) {
+      showMessage(
+        'No se pudo conectar con el servidor. Verifique que el API Gateway esté ejecutándose.',
+        'error',
+      )
+
+      /*
+       * Otros errores
+       */
+    } else {
+      showMessage(
+        error.response?.data?.message || 'Ocurrió un error durante el inicio de sesión.',
+        'error',
+      )
+    }
+  } finally {
+    loading.value = false
   }
-
-  loading.value = false
 }
 
 /*==================================================
@@ -104,7 +166,7 @@ const validate = () => {
     return false
   }
 
-  if (password.value.length < 6) {
+  if (password.value.length < 5) {
     showMessage(
       'La contraseña debe tener al menos 6 caracteres.',
 
@@ -168,13 +230,12 @@ const showMessage = (
     message.value = ''
 
     messageType.value = ''
-  }, 3500)
+  }, 4000)
 }
 
 /*==================================================
     Delay
 ==================================================*/
-
 const delay = (ms) => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms)
