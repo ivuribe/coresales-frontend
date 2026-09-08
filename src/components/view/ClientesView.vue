@@ -60,7 +60,6 @@
           </thead>
 
           <tbody>
-            tbody>
             <!-- Cargando -->
             <tr v-if="loading && clientes.length === 0">
               <td colspan="7" class="empty">
@@ -165,8 +164,8 @@ const clientes = ref([])
 const loading = ref(false)
 const error = ref('')
 
-/*================================================== 
-    Inicialización 
+/*==================================================
+    Inicialización
 ==================================================*/
 onMounted(() => {
   loadCustomers()
@@ -180,6 +179,7 @@ const loadCustomers = async () => {
   error.value = ''
   try {
     const data = await getCustomers()
+    console.log(data)
 
     /*
      * El servicio devuelve response.data.
@@ -188,18 +188,21 @@ const loadCustomers = async () => {
      * al formato utilizado actualmente por la interfaz.
      */
     clientes.value = data.map((cliente) => ({
-      id: cliente.id,
-      nombre: obtenerNombre(cliente),
-      documento: cliente.numeroDocumento,
-      telefono: cliente.telefono || '',
-      email: cliente.email || '',
-      estado: cliente.activo,
-
       /*
        * Conservamos los datos originales.
        * Esto será útil para editar.
        */
       ...cliente,
+
+      /*
+       * Datos utilizados por la interfaz
+       */
+      id: cliente.id,
+      nombre: obtenerNombre(cliente),
+      documento: cliente.numeroDocumento,
+      telefono: cliente.telefono || '',
+      email: cliente.email || '',
+      estado: cliente.activo ?? true,
     }))
   } catch (err) {
     console.error('Error al obtener clientes:', err)
@@ -209,8 +212,8 @@ const loadCustomers = async () => {
   }
 }
 
-/*================================================== 
-    Construir nombre 
+/*==================================================
+    Construir nombre
 ==================================================*/
 const obtenerNombre = (cliente) => {
   /*
@@ -279,6 +282,7 @@ const guardarCliente = async (cliente) => {
      *
      * Si no existe: INSERT
      */
+    console.log('Este es el cliente a actualizar:', cliente)
 
     if (cliente.id) {
       await updateCustomer(cliente.id, prepararCliente(cliente))
@@ -301,13 +305,13 @@ const guardarCliente = async (cliente) => {
   }
 }
 
-/*================================================== 
-    Preparar cliente para API 
+/*==================================================
+    Preparar cliente para API
 ==================================================*/
 const prepararCliente = (cliente) => {
   return {
     id: cliente.id,
-    tipoDocumentoId: cliente.tipoDocumentoId,
+    tipoDocumento: cliente.tipoDocumento,
     numeroDocumento: cliente.numeroDocumento || cliente.documento,
     nombres: cliente.nombres,
     apellidos: cliente.apellidos,
@@ -315,7 +319,7 @@ const prepararCliente = (cliente) => {
     email: cliente.email,
     telefono: cliente.telefono,
     direccion: cliente.direccion,
-    activo: cliente.activo ?? cliente.estado ?? true,
+    estado: cliente.activo ?? cliente.estado ?? true,
   }
 }
 
@@ -331,7 +335,6 @@ const eliminarCliente = async (cliente) => {
 
   try {
     await deleteCustomer(cliente.id)
-
     /*
      * Recargamos la información
      * desde el backend.

@@ -25,46 +25,86 @@
 
       <form @submit.prevent="guardar">
         <div class="form-grid">
-          <!-- Nombre -->
-
-          <div class="form-group full">
-            <label> Nombre / Razón social </label>
-
-            <input v-model="form.nombre" type="text" placeholder="Ingrese el nombre" required />
-          </div>
-
-          <!-- Documento -->
-
+          <!--====================================== 
+              TIPO DOCUMENTO 
+          =======================================-->
           <div class="form-group">
-            <label> Documento </label>
-
-            <input v-model="form.documento" type="text" placeholder="DNI / RUC" required />
+            <label> Tipo de documento </label>
+            <select v-model="form.tipoDocumento" required>
+              <option :value="null" disabled>Seleccione</option>
+              <!-- 
+                IMPORTANTE: 
+                Estos IDs deben coincidir con 
+                tu tabla TipoDocumento. 
+              -->
+              <option :value="1">DNI</option>
+              <option :value="2">RUC</option>
+              <option :value="3">CE</option>
+            </select>
+          </div>
+          <!--====================================== 
+              NÚMERO DOCUMENTO 
+          =======================================-->
+          <div class="form-group">
+            <label> Número de documento </label>
+            <input v-model="form.numeroDocumento" type="text" placeholder="DNI / RUC" required />
           </div>
 
-          <!-- Teléfono -->
+          <!--====================================== 
+              NOMBRES 
+          =======================================-->
+          <div class="form-group">
+            <label> Nombres </label>
+            <input v-model="form.nombres" type="text" placeholder="Ingrese los nombres" />
+          </div>
 
+          <!--====================================== 
+              APELLIDOS 
+          =======================================-->
+          <div class="form-group">
+            <label> Apellidos </label>
+            <input v-model="form.apellidos" type="text" placeholder="Ingrese los apellidos" />
+          </div>
+
+          <!--====================================== 
+              RAZÓN SOCIAL 
+          =======================================-->
+          <div class="form-group full">
+            <label> Razón social </label>
+            <input v-model="form.razonSocial" type="text" placeholder="Ingrese la razón social" />
+          </div>
+
+          <!--====================================== 
+              TELÉFONO 
+          =======================================-->
           <div class="form-group">
             <label> Teléfono </label>
-
             <input v-model="form.telefono" type="text" placeholder="Ingrese el teléfono" />
           </div>
 
-          <!-- Email -->
-
+          <!--====================================== 
+              EMAIL 
+          =======================================-->
           <div class="form-group full">
             <label> Email </label>
-
             <input v-model="form.email" type="email" placeholder="cliente@email.com" />
           </div>
 
-          <!-- Estado -->
+          <!--====================================== 
+              DIRECCIÓN 
+          =======================================-->
+          <div class="form-group full">
+            <label> Dirección </label>
+            <input v-model="form.direccion" type="text" placeholder="Ingrese la dirección" />
+          </div>
 
+          <!--====================================== 
+              ESTADO 
+          =======================================-->
           <div class="form-group">
             <label> Estado </label>
-
-            <select v-model="form.estado">
+            <select v-model="form.activo">
               <option :value="true">Activo</option>
-
               <option :value="false">Inactivo</option>
             </select>
           </div>
@@ -72,14 +112,11 @@
 
         <!--======================================
                     BOTONES
-                =======================================-->
-
+        =======================================-->
         <div class="modal-footer">
           <button type="button" class="btn-secondary" @click="$emit('cancelar')">Cancelar</button>
-
           <button type="submit" class="btn-primary">
             <i class="fa-solid fa-floppy-disk"></i>
-
             Guardar
           </button>
         </div>
@@ -94,11 +131,9 @@ import { reactive } from 'vue'
 /*==================================================
     Props
 ==================================================*/
-
 const props = defineProps({
   cliente: {
     type: Object,
-
     default: null,
   },
 })
@@ -106,31 +141,46 @@ const props = defineProps({
 /*==================================================
     Eventos
 ==================================================*/
-
 const emit = defineEmits(['guardar', 'cancelar'])
 
 /*==================================================
     Formulario
 ==================================================*/
-
 const form = reactive({
   id: props.cliente?.id ?? null,
+  /*
+   * Documento
+   */
+  tipoDocumento: props.cliente?.tipoDocumento ?? null,
+  numeroDocumento: props.cliente?.numeroDocumento ?? props.cliente?.documento ?? '',
 
-  nombre: props.cliente?.nombre ?? '',
+  /*
+   * Persona natural
+   */
+  nombres: props.cliente?.nombres ?? '',
+  apellidos: props.cliente?.apellidos ?? '',
 
-  documento: props.cliente?.documento ?? '',
+  /*
+   * Persona jurídica
+   */
+  razonSocial: props.cliente?.razonSocial ?? '',
 
+  /*
+   * Información de contacto
+   */
   telefono: props.cliente?.telefono ?? '',
-
   email: props.cliente?.email ?? '',
+  direccion: props.cliente?.direccion ?? '',
 
-  estado: props.cliente?.estado ?? true,
+  /*
+   * Estado
+   */
+  activo: props.cliente?.activo ?? props.cliente?.estado ?? true,
 })
 
 /*==================================================
     Guardar
 ==================================================*/
-
 const guardar = () => {
   emit(
     'guardar',
