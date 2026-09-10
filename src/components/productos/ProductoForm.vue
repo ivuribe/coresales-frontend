@@ -63,16 +63,31 @@
             </select>
           </div>
 
-          <!-- Precio -->
-
+          <!-- Precio Compra-->
           <div class="form-group">
-            <label> Precio </label>
+            <label> Precio de Compra </label>
 
+            <div class="input-prefix">
+              <span> S/ </span>
+              <input
+                v-model.number="form.precioCompra"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Precio Venta-->
+          <div class="form-group">
+            <label> Precio de Venta </label>
             <div class="input-prefix">
               <span> S/ </span>
 
               <input
-                v-model.number="form.precio"
+                v-model.number="form.precioVenta"
                 type="number"
                 min="0"
                 step="0.01"
@@ -134,7 +149,6 @@ import { reactive } from 'vue'
 /*==================================================
     Props
 ==================================================*/
-
 const props = defineProps({
   producto: {
     type: Object,
@@ -152,31 +166,22 @@ const props = defineProps({
 /*==================================================
     Eventos
 ==================================================*/
-
 const emit = defineEmits(['guardar', 'cancelar'])
 
 /*==================================================
     Formulario
 ==================================================*/
-
 const form = reactive({
   id: props.producto?.id ?? null,
-
   codigo: props.producto?.codigo ?? '',
-
   nombre: props.producto?.nombre ?? '',
-
   marca: props.producto?.marca ?? '',
-
   categoria: props.producto?.categoria ?? '',
-
-  precio: props.producto?.precio ?? 0,
-
+  precioCompra: props.producto?.precioCompra ?? 0,
+  precioVenta: props.producto?.precioVenta ?? 0,
   stock: props.producto?.stock ?? 0,
-
   estado: props.producto?.estado ?? true,
 })
-
 /*==================================================
     Guardar
 ==================================================*/

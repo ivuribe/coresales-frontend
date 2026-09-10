@@ -51,6 +51,8 @@
 
               <th>Categoría</th>
 
+              <th>Costo</th>
+
               <th>Precio</th>
 
               <th>Stock</th>
@@ -95,6 +97,12 @@
 
               <td>
                 {{ producto.categoria }}
+              </td>
+
+              <!-- Precio -->
+
+              <td>
+                <strong> S/ {{ producto.costo.toFixed(2) }} </strong>
               </td>
 
               <!-- Precio -->
@@ -173,102 +181,80 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-
+import { ref, computed, onMounted } from 'vue'
 import ProductoForm from '@/components/productos/ProductoForm.vue'
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from '@/services/productService'
 
 /*==================================================
     Variables
 ==================================================*/
-
 const search = ref('')
-
 const showForm = ref(false)
-
 const productoSeleccionado = ref(null)
+const productos = ref([])
+const loading = ref(false)
+const error = ref('')
 
 /*==================================================
     Categorías
 ==================================================*/
-
-const categorias = ref(['Electrónica', 'Accesorios', 'Oficina', 'Computación', 'Otros'])
+const categorias = ref(['Computación', 'Electrónica', 'Accesorios', 'Oficina'])
 
 /*==================================================
-    Productos
+    Marcas
 ==================================================*/
+const marcas = ref(['Lenovo', 'LG', 'Logitech', 'HP', 'Kingston', 'Epson'])
 
-const productos = ref([
-  {
-    id: 1,
-    codigo: 'PROD-001',
-    nombre: 'Laptop Lenovo ThinkPad',
-    marca: 'Lenovo',
-    categoria: 'Computación',
-    precio: 2850.0,
-    stock: 12,
-    estado: true,
-  },
+/*==================================================
+    Inicialización
+==================================================*/
+onMounted(() => {
+  loadProducts()
+})
 
-  {
-    id: 2,
-    codigo: 'PROD-002',
-    nombre: 'Monitor LED 24"',
-    marca: 'LG',
-    categoria: 'Electrónica',
-    precio: 680.0,
-    stock: 25,
-    estado: true,
-  },
+/*==================================================
+    Obtener productos
+==================================================*/
+const loadProducts = async () => {
+  loading.value = true
+  error.value = ''
 
-  {
-    id: 3,
-    codigo: 'PROD-003',
-    nombre: 'Teclado inalámbrico',
-    marca: 'Logitech',
-    categoria: 'Accesorios',
-    precio: 145.0,
-    stock: 8,
-    estado: true,
-  },
+  try {
+    const data = await getProducts()
+    console.log('LISTA DE PRODUCTOS RECIBIDOS DEL MICROSERVICIO:', data)
 
-  {
-    id: 4,
-    codigo: 'PROD-004',
-    nombre: 'Mouse inalámbrico',
-    marca: 'Logitech',
-    categoria: 'Accesorios',
-    precio: 85.0,
-    stock: 4,
-    estado: true,
-  },
-
-  {
-    id: 5,
-    codigo: 'PROD-005',
-    nombre: 'Impresora multifuncional',
-    marca: 'Epson',
-    categoria: 'Oficina',
-    precio: 920.0,
-    stock: 2,
-    estado: true,
-  },
-
-  {
-    id: 6,
-    codigo: 'PROD-006',
-    nombre: 'Disco SSD 1TB',
-    marca: 'Kingston',
-    categoria: 'Computación',
-    precio: 380.0,
-    stock: 0,
-    estado: false,
-  },
-])
+    productos.value = data.map((producto) => ({
+      ...producto,
+      /*
+       * Adaptación para la interfaz.
+       */
+      id: producto.productoId,
+      codigo: producto.codigo || '',
+      nombreProducto: producto.nombre || '',
+      marca: producto.marcaId || '',
+      categoria: producto.categoriaProductoId || '',
+      costo: Number(producto.precioCompra ?? 0),
+      precio: Number(producto.precioVenta ?? 0),
+      stock: Number(producto.stockMinimo ?? 0),
+      estado: producto.estado ?? producto.activo ?? true,
+    }))
+  } catch (err) {
+    console.error('Error al obtener productos:', err)
+    error.value = err.response?.data?.message || 'No se pudieron cargar los productos.'
+  } finally {
+    loading.value = false
+  }
+}
 
 /*==================================================
     Productos filtrados
 ==================================================*/
-
 const productosFiltrados = computed(() => {
   const texto = search.value.toLowerCase().trim()
 
@@ -288,77 +274,110 @@ const productosFiltrados = computed(() => {
 /*==================================================
     Nuevo producto
 ==================================================*/
-
 const nuevoProducto = () => {
   productoSeleccionado.value = null
-
   showForm.value = true
 }
 
 /*==================================================
     Editar producto
 ==================================================*/
-
 const editarProducto = (producto) => {
   productoSeleccionado.value = {
     ...producto,
   }
-
   showForm.value = true
 }
 
 /*==================================================
     Guardar producto
 ==================================================*/
+const guardarProducto = async (producto) => {
+  loading.value = true
+  error.value = ''
 
-const guardarProducto = (producto) => {
-  if (producto.id) {
-    const index = productos.value.findIndex((item) => item.id === producto.id)
+  try {
+    const productoRequest = prepararProducto(producto)
 
-    if (index !== -1) {
-      productos.value[index] = producto
+    /*
+     * UPDATE
+     */
+    if (producto.id) {
+      await updateProduct(producto.id, productoRequest)
+
+      /*
+       * INSERT
+       */
+    } else {
+      await createProduct(productoRequest)
     }
-  } else {
-    const nuevoId = productos.value.length
-      ? Math.max(...productos.value.map((item) => item.id)) + 1
-      : 1
 
-    productos.value.push({
-      ...producto,
-
-      id: nuevoId,
-    })
+    /*
+     * Volvemos a consultar el backend.
+     *
+     * De esta manera la tabla refleja
+     * exactamente lo que está almacenado
+     * en SQL Server.
+     */
+    await loadProducts()
+    cerrarFormulario()
+  } catch (err) {
+    console.error('Error al guardar producto:', err)
+    error.value = err.response?.data?.message || 'No se pudo guardar el producto.'
+  } finally {
+    loading.value = false
   }
+}
 
-  cerrarFormulario()
+/*==================================================
+    Preparar producto
+==================================================*/
+const prepararProducto = (producto) => {
+  return {
+    id: producto.id,
+    codigo: producto.codigo,
+    nombre: producto.nombre,
+    marca: producto.marca,
+    categoria: producto.categoria,
+    precio: Number(producto.precio),
+    stock: Number(producto.stock),
+    estado: producto.estado ?? true,
+  }
 }
 
 /*==================================================
     Eliminar producto
 ==================================================*/
-
-const eliminarProducto = (producto) => {
+const eliminarProducto = async (producto) => {
   const confirmar = window.confirm(`¿Desea eliminar el producto "${producto.nombre}"?`)
 
-  if (!confirmar) return
+  if (!confirmar) return (loading.value = true)
+  error.value = ''
 
-  productos.value = productos.value.filter((item) => item.id !== producto.id)
+  try {
+    await deleteProduct(producto.id)
+    /*
+     * Recargar desde el backend.
+     */
+    await loadProducts()
+  } catch (err) {
+    console.error('Error al eliminar producto:', err)
+    error.value = err.response?.data?.message || 'No se pudo eliminar el producto.'
+  } finally {
+    loading.value = false
+  }
 }
-
 /*==================================================
     Cerrar formulario
 ==================================================*/
-
 const cerrarFormulario = () => {
   showForm.value = false
-
   productoSeleccionado.value = null
 }
 
 /*==================================================
     Estado del stock
 ==================================================*/
-
 const obtenerEstadoStock = (stock) => {
   if (stock === 0) {
     return 'Sin stock'
@@ -378,7 +397,6 @@ const obtenerEstadoStock = (stock) => {
 /*==================================================
     Clase del stock
 ==================================================*/
-
 const obtenerClaseStock = (stock) => {
   if (stock === 0) {
     return 'stock-danger'

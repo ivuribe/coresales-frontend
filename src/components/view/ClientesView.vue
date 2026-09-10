@@ -1,5 +1,19 @@
 <template>
   <div class="clientes">
+    <!--========================================== 
+        MENSAJE DE ÉXITO 
+    ===========================================-->
+    <!-- Popup de éxito -->
+    <div v-if="successMessage" class="success-overlay">
+      <div class="success-popup">
+        <div class="success-icon">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3>Operación exitosa</h3>
+        <p>{{ successMessage }}</p>
+      </div>
+    </div>
+
     <!--==========================================
             ENCABEZADO
         ===========================================-->
@@ -163,6 +177,7 @@ const clienteSeleccionado = ref(null)
 const clientes = ref([])
 const loading = ref(false)
 const error = ref('')
+const successMessage = ref('')
 
 /*==================================================
     Inicialización
@@ -282,12 +297,14 @@ const guardarCliente = async (cliente) => {
      *
      * Si no existe: INSERT
      */
-    console.log('Este es el cliente a actualizar:', cliente)
+    console.log('Este es el cliente a actualizar o a crear:', cliente)
 
     if (cliente.id) {
       await updateCustomer(cliente.id, prepararCliente(cliente))
+      showSuccessMessage('El cliente se actualizó correctamente!')
     } else {
       await createCustomer(prepararCliente(cliente))
+      showSuccessMessage('El cliente se registró exitosamente!')
     }
 
     /*
@@ -319,7 +336,7 @@ const prepararCliente = (cliente) => {
     email: cliente.email,
     telefono: cliente.telefono,
     direccion: cliente.direccion,
-    estado: cliente.activo ?? cliente.estado ?? true,
+    activo: cliente.activo ?? cliente.estado ?? true,
   }
 }
 
@@ -340,6 +357,7 @@ const eliminarCliente = async (cliente) => {
      * desde el backend.
      */
     await loadCustomers()
+    showSuccessMessage('El cliente se anuló exitosamente!')
   } catch (err) {
     console.error('Error al eliminar cliente:', err)
     error.value = err.response?.data?.message || 'No se pudo eliminar el cliente.'
@@ -371,6 +389,16 @@ const obtenerIniciales = (nombre) => {
     .map((palabra) => palabra.charAt(0))
     .join('')
     .toUpperCase()
+}
+
+/*==================================================
+Mensaje de éxito
+==================================================*/
+const showSuccessMessage = (message) => {
+  successMessage.value = message
+  setTimeout(() => {
+    successMessage.value = ''
+  }, 2500)
 }
 </script>
 

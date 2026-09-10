@@ -31,6 +31,7 @@ export const createCustomer = async (customer) => {
 // ACTUALIZAR
 // ==================================================
 export const updateCustomer = async (id, customer) => {
+  console.log('updateCustomer: ', customer)
   const response = await api.put(`/api/customers/${id}`, customer)
   return response.data
 }
