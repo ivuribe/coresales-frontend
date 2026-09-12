@@ -26,39 +26,46 @@
       <form @submit.prevent="guardar">
         <div class="form-grid">
           <!-- Código -->
-
           <div class="form-group">
             <label> Código </label>
-
             <input v-model="form.codigo" type="text" placeholder="PROD-001" required />
           </div>
 
           <!-- Marca -->
-
           <div class="form-group">
             <label> Marca </label>
-
             <input v-model="form.marca" type="text" placeholder="Ingrese la marca" />
           </div>
 
           <!-- Nombre -->
-
           <div class="form-group full">
             <label> Nombre del producto </label>
-
             <input v-model="form.nombre" type="text" placeholder="Ingrese el nombre" required />
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-group full">
+            <label> Descripción del producto </label>
+            <input
+              v-model="form.descripcion"
+              type="text"
+              placeholder="Ingrese la descripcion"
+              required
+            />
           </div>
 
           <!-- Categoría -->
 
           <div class="form-group">
             <label> Categoría </label>
-
             <select v-model="form.categoria" required>
               <option value="" disabled>Seleccione una categoría</option>
-
-              <option v-for="categoria in categorias" :key="categoria" :value="categoria">
-                {{ categoria }}
+              <option
+                v-for="categoria in categorias"
+                :key="categoria.codigo"
+                :value="categoria.codigo"
+              >
+                {{ categoria.nombre }}
               </option>
             </select>
           </div>
@@ -152,13 +159,10 @@ import { reactive } from 'vue'
 const props = defineProps({
   producto: {
     type: Object,
-
     default: null,
   },
-
   categorias: {
     type: Array,
-
     default: () => [],
   },
 })
@@ -172,27 +176,25 @@ const emit = defineEmits(['guardar', 'cancelar'])
     Formulario
 ==================================================*/
 const form = reactive({
-  id: props.producto?.id ?? null,
+  id: props.producto?.productoId ?? null,
   codigo: props.producto?.codigo ?? '',
   nombre: props.producto?.nombre ?? '',
-  marca: props.producto?.marca ?? '',
+  descripcion: props.producto?.descripcion ?? '',
+  marca: props.producto?.marcaId ?? props.producto?.marca ?? null,
   categoria: props.producto?.categoria ?? '',
   precioCompra: props.producto?.precioCompra ?? 0,
   precioVenta: props.producto?.precioVenta ?? 0,
   stock: props.producto?.stock ?? 0,
-  estado: props.producto?.estado ?? true,
+  estado: props.producto?.activo ?? props.producto?.estado ?? true,
 })
 /*==================================================
     Guardar
 ==================================================*/
 
 const guardar = () => {
-  emit(
-    'guardar',
-
-    {
-      ...form,
-    },
-  )
+  console.log('LO QUE SE VA A GUARDAR: ', form)
+  emit('guardar', {
+    ...form,
+  })
 }
 </script>

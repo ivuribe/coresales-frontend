@@ -1,13 +1,11 @@
 <template>
   <div class="productos">
     <!--==========================================
-            ENCABEZADO
-        ===========================================-->
-
+        ENCABEZADO
+    ===========================================-->
     <div class="page-header">
       <div>
         <h1>Productos</h1>
-
         <p>Administración de productos de CoreSales.</p>
       </div>
 
@@ -19,54 +17,64 @@
     </div>
 
     <!--==========================================
-            PANEL PRINCIPAL
-        ===========================================-->
+        PANEL PRINCIPAL
+    ===========================================-->
 
     <section class="panel">
       <!--======================================
-                TOOLBAR
-            =======================================-->
+          TOOLBAR
+      =======================================-->
 
       <div class="table-toolbar">
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass"></i>
-
           <input v-model="search" type="text" placeholder="Buscar producto..." />
         </div>
 
         <div class="product-counter">{{ productosFiltrados.length }} productos</div>
       </div>
-
       <!--======================================
-                TABLA
-            =======================================-->
-
+          TABLA
+      =======================================-->
       <div class="table-container">
         <table>
           <thead>
             <tr>
               <th>Código</th>
-
               <th>Producto</th>
-
               <th>Categoría</th>
-
               <th>Costo</th>
-
               <th>Precio</th>
-
               <th>Stock</th>
-
               <th>Estado</th>
-
               <th>Acciones</th>
             </tr>
           </thead>
 
           <tbody>
-            <tr v-for="producto in productosFiltrados" :key="producto.id">
+            <!--====================================== 
+                CARGANDO 
+            =======================================-->
+            <tr v-if="loading && productos.length === 0">
+              <td colspan="7" class="empty">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                <span> Cargando productos... </span>
+              </td>
+            </tr>
+            <!--====================================== 
+                ERROR 
+            =======================================-->
+            <tr v-else-if="error">
+              <td colspan="7" class="empty">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span> {{ error }} </span>
+              </td>
+            </tr>
+            <!--====================================== 
+                PRODUCTOS 
+            =======================================-->
+            <tr v-for="producto in productosFiltrados" :key="producto.productoId">
               <!-- Código -->
-
               <td>
                 <strong>
                   {{ producto.codigo }}
@@ -74,7 +82,6 @@
               </td>
 
               <!-- Producto -->
-
               <td>
                 <div class="product-name">
                   <div class="product-icon">
@@ -204,7 +211,12 @@ const error = ref('')
 /*==================================================
     Categorías
 ==================================================*/
-const categorias = ref(['Computación', 'Electrónica', 'Accesorios', 'Oficina'])
+const categorias = ref([
+  { codigo: 1, nombre: 'Computación' },
+  { codigo: 2, nombre: 'Electrónica' },
+  { codigo: 3, nombre: 'Accesorios' },
+  { codigo: 4, nombre: 'Oficina' },
+])
 
 /*==================================================
     Marcas
@@ -283,9 +295,11 @@ const nuevoProducto = () => {
     Editar producto
 ==================================================*/
 const editarProducto = (producto) => {
+  console.log('PRDOUCTO SELECCIONADO: ', producto)
   productoSeleccionado.value = {
     ...producto,
   }
+  console.log('PRDOUCTO SELECCIONADO 2: ', productoSeleccionado.value)
   showForm.value = true
 }
 
@@ -295,15 +309,15 @@ const editarProducto = (producto) => {
 const guardarProducto = async (producto) => {
   loading.value = true
   error.value = ''
-
+  console.log('PRODUCTO A GUARDAR:', producto)
   try {
     const productoRequest = prepararProducto(producto)
 
     /*
      * UPDATE
      */
-    if (producto.id) {
-      await updateProduct(producto.id, productoRequest)
+    if (producto.productoId || producto.id) {
+      await updateProduct(producto.productoId || producto.id, productoRequest)
 
       /*
        * INSERT
@@ -332,16 +346,20 @@ const guardarProducto = async (producto) => {
 /*==================================================
     Preparar producto
 ==================================================*/
+//Este método debe cumplir con la estructura de campos a enviar por json
 const prepararProducto = (producto) => {
+  console.log('PrepararProducto recibe: ', producto)
   return {
-    id: producto.id,
+    productoId: producto.productoId || producto.id,
     codigo: producto.codigo,
     nombre: producto.nombre,
-    marca: producto.marca,
-    categoria: producto.categoria,
-    precio: Number(producto.precio),
-    stock: Number(producto.stock),
-    estado: producto.estado ?? true,
+    descripcion: producto.descripcion,
+    marcaId: producto.marca,
+    categoriaProductoId: producto.categoriaProductoId || producto.categoria,
+    precioCompra: Number(producto.precioCompra),
+    precioVenta: Number(producto.precioVenta),
+    stockMinimo: Number(producto.stock),
+    activo: producto.activo ?? producto.estado ?? true,
   }
 }
 
@@ -355,7 +373,7 @@ const eliminarProducto = async (producto) => {
   error.value = ''
 
   try {
-    await deleteProduct(producto.id)
+    await deleteProduct(producto.productoId || producto.id)
     /*
      * Recargar desde el backend.
      */
