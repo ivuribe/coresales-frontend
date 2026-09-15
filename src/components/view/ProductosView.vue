@@ -1,5 +1,18 @@
 <template>
   <div class="productos">
+    <!--========================================== 
+        MENSAJE DE ÉXITO 
+    ===========================================-->
+    <!-- Popup de éxito -->
+    <div v-if="successMessage" class="success-overlay">
+      <div class="success-popup">
+        <div class="success-icon">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <h3>Operación exitosa</h3>
+        <p>{{ successMessage }}</p>
+      </div>
+    </div>
     <!--==========================================
         ENCABEZADO
     ===========================================-->
@@ -87,35 +100,30 @@
                   <div class="product-icon">
                     <i class="fa-solid fa-box"></i>
                   </div>
-
                   <div>
                     <span class="name">
                       {{ producto.nombre }}
                     </span>
-
                     <small>
-                      {{ producto.marca }}
+                      {{ producto.marcaId }}
                     </small>
                   </div>
                 </div>
               </td>
 
               <!-- Categoría -->
-
               <td>
-                {{ producto.categoria }}
+                {{ producto.categoriaProducto?.nombre }}
               </td>
 
-              <!-- Precio -->
-
+              <!-- PrecioCompra (Costo) -->
               <td>
-                <strong> S/ {{ producto.costo.toFixed(2) }} </strong>
+                <strong> S/ {{ producto.precioCompra.toFixed(2) }} </strong>
               </td>
 
-              <!-- Precio -->
-
+              <!-- PrecioVenta (Precio) -->
               <td>
-                <strong> S/ {{ producto.precio.toFixed(2) }} </strong>
+                <strong> S/ {{ producto.precioVenta.toFixed(2) }} </strong>
               </td>
 
               <!-- Stock -->
@@ -123,31 +131,27 @@
               <td>
                 <div class="stock-info">
                   <span>
-                    {{ producto.stock }}
+                    {{ producto.stockMinimo }}
                   </span>
-
-                  <small :class="obtenerClaseStock(producto.stock)">
-                    {{ obtenerEstadoStock(producto.stock) }}
+                  <small :class="obtenerClaseStock(producto.stockMinimo)">
+                    {{ obtenerEstadoStock(producto.stockMinimo) }}
                   </small>
                 </div>
               </td>
 
               <!-- Estado -->
-
               <td>
-                <span class="status" :class="producto.estado ? 'active' : 'inactive'">
-                  {{ producto.estado ? 'Activo' : 'Inactivo' }}
+                <span class="status" :class="producto.activo ? 'active' : 'inactive'">
+                  {{ producto.activo ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
 
               <!-- Acciones -->
-
               <td>
                 <div class="actions">
                   <button class="btn-icon edit" title="Editar" @click="editarProducto(producto)">
                     <i class="fa-solid fa-pen"></i>
                   </button>
-
                   <button
                     class="btn-icon delete"
                     title="Eliminar"
@@ -174,13 +178,13 @@
     </section>
 
     <!--==========================================
-            FORMULARIO
-        ===========================================-->
-
+        FORMULARIO
+    ===========================================-->
     <ProductoForm
       v-if="showForm"
       :producto="productoSeleccionado"
       :categorias="categorias"
+      :marcas="marcas"
       @guardar="guardarProducto"
       @cancelar="cerrarFormulario"
     />
@@ -207,21 +211,29 @@ const productoSeleccionado = ref(null)
 const productos = ref([])
 const loading = ref(false)
 const error = ref('')
+const successMessage = ref('')
 
 /*==================================================
     Categorías
 ==================================================*/
 const categorias = ref([
-  { codigo: 1, nombre: 'Computación' },
-  { codigo: 2, nombre: 'Electrónica' },
-  { codigo: 3, nombre: 'Accesorios' },
-  { codigo: 4, nombre: 'Oficina' },
+  { categoriaProductoId: 1, nombre: 'Computación' },
+  { categoriaProductoId: 2, nombre: 'Electrónica' },
+  { categoriaProductoId: 3, nombre: 'Accesorios' },
+  { categoriaProductoId: 4, nombre: 'Oficina' },
 ])
 
 /*==================================================
     Marcas
 ==================================================*/
-const marcas = ref(['Lenovo', 'LG', 'Logitech', 'HP', 'Kingston', 'Epson'])
+const marcas = ref([
+  { marcaId: 1, nombre: 'Lenovo' },
+  { marcaId: 2, nombre: 'LG' },
+  { marcaId: 3, nombre: 'Logitech' },
+  { marcaId: 4, nombre: 'HP' },
+  { marcaId: 5, nombre: 'Kingston' },
+  { marcaId: 6, nombre: 'Epson' },
+])
 
 /*==================================================
     Inicialización
@@ -240,22 +252,7 @@ const loadProducts = async () => {
   try {
     const data = await getProducts()
     console.log('LISTA DE PRODUCTOS RECIBIDOS DEL MICROSERVICIO:', data)
-
-    productos.value = data.map((producto) => ({
-      ...producto,
-      /*
-       * Adaptación para la interfaz.
-       */
-      id: producto.productoId,
-      codigo: producto.codigo || '',
-      nombreProducto: producto.nombre || '',
-      marca: producto.marcaId || '',
-      categoria: producto.categoriaProductoId || '',
-      costo: Number(producto.precioCompra ?? 0),
-      precio: Number(producto.precioVenta ?? 0),
-      stock: Number(producto.stockMinimo ?? 0),
-      estado: producto.estado ?? producto.activo ?? true,
-    }))
+    productos.value = data
   } catch (err) {
     console.error('Error al obtener productos:', err)
     error.value = err.response?.data?.message || 'No se pudieron cargar los productos.'
@@ -278,8 +275,8 @@ const productosFiltrados = computed(() => {
     (producto) =>
       producto.codigo.toLowerCase().includes(texto) ||
       producto.nombre.toLowerCase().includes(texto) ||
-      producto.marca.toLowerCase().includes(texto) ||
-      producto.categoria.toLowerCase().includes(texto),
+      producto.marca?.nombre.toLowerCase().includes(texto) ||
+      producto.categoriaProducto?.nombre.toLowerCase().includes(texto),
   )
 })
 
@@ -311,19 +308,18 @@ const guardarProducto = async (producto) => {
   error.value = ''
   console.log('PRODUCTO A GUARDAR:', producto)
   try {
-    const productoRequest = prepararProducto(producto)
-
     /*
      * UPDATE
      */
-    if (producto.productoId || producto.id) {
-      await updateProduct(producto.productoId || producto.id, productoRequest)
-
+    if (producto.productoId) {
+      await updateProduct(producto.productoId, producto)
+      showSuccessMessage('El producto se actualizó correctamente!')
       /*
        * INSERT
        */
     } else {
-      await createProduct(productoRequest)
+      await createProduct(producto)
+      showSuccessMessage('El producto se registró exitosamente!')
     }
 
     /*
@@ -344,26 +340,6 @@ const guardarProducto = async (producto) => {
 }
 
 /*==================================================
-    Preparar producto
-==================================================*/
-//Este método debe cumplir con la estructura de campos a enviar por json
-const prepararProducto = (producto) => {
-  console.log('PrepararProducto recibe: ', producto)
-  return {
-    productoId: producto.productoId || producto.id,
-    codigo: producto.codigo,
-    nombre: producto.nombre,
-    descripcion: producto.descripcion,
-    marcaId: producto.marca,
-    categoriaProductoId: producto.categoriaProductoId || producto.categoria,
-    precioCompra: Number(producto.precioCompra),
-    precioVenta: Number(producto.precioVenta),
-    stockMinimo: Number(producto.stock),
-    activo: producto.activo ?? producto.estado ?? true,
-  }
-}
-
-/*==================================================
     Eliminar producto
 ==================================================*/
 const eliminarProducto = async (producto) => {
@@ -373,11 +349,12 @@ const eliminarProducto = async (producto) => {
   error.value = ''
 
   try {
-    await deleteProduct(producto.productoId || producto.id)
+    await deleteProduct(producto.productoId)
     /*
      * Recargar desde el backend.
      */
     await loadProducts()
+    showSuccessMessage('El producto se anuló exitosamente!')
   } catch (err) {
     console.error('Error al eliminar producto:', err)
     error.value = err.response?.data?.message || 'No se pudo eliminar el producto.'
@@ -429,6 +406,16 @@ const obtenerClaseStock = (stock) => {
   }
 
   return 'stock-ok'
+}
+
+/*==================================================
+Mensaje de éxito
+==================================================*/
+const showSuccessMessage = (message) => {
+  successMessage.value = message
+  setTimeout(() => {
+    successMessage.value = ''
+  }, 2500)
 }
 </script>
 
