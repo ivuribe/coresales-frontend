@@ -15,7 +15,8 @@ api.interceptors.request.use(
     console.log('URL del llamado: ' + config.url)
     if (config.url === '/api/auth/login') return config
 
-    const token = localStorage.getItem('coresales_token')
+    //const token = localStorage.getItem('coresales_token') //este es el token con el flujo de login con JWT manual
+    const token = localStorage.getItem('access_token') //este es el token con el flujo del login con OAuth
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
