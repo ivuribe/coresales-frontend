@@ -3,6 +3,7 @@ const CLIENT_ID = 'coresales-web'
 const REDIRECT_URI = 'http://localhost:5173/callback'
 const AUTHORIZATION_ENDPOINT = `${AUTHORIZATION_SERVER}/oauth2/authorize`
 const TOKEN_ENDPOINT = `${AUTHORIZATION_SERVER}/oauth2/token`
+const TOKEN_KEY = 'access_token'
 
 // Generar string aleatorio
 function generateRandomString(length = 64) {
@@ -68,7 +69,7 @@ export async function handleCallback(code) {
   }
 
   const token = await response.json()
-  localStorage.setItem('access_token', token.access_token)
+  localStorage.setItem(TOKEN_KEY, token.access_token)
   localStorage.removeItem('code_verifier')
 
   return token
@@ -76,11 +77,39 @@ export async function handleCallback(code) {
 
 // Logout
 export function logout() {
-  localStorage.removeItem('access_token')
+  localStorage.removeItem(TOKEN_KEY)
   localStorage.removeItem('code_verifier')
+  window.location.replace('/')
 }
 
 // Verificar autenticación
 export function isAuthenticated() {
-  return !!localStorage.getItem('access_token')
+  const token = localStorage.getItem(TOKEN_KEY)
+
+  if (!token) {
+    return false
+  }
+
+  try {
+    const parts = token.split('.')
+
+    if (parts.length !== 3) {
+      return false
+    }
+
+    // Decodificar el payload de un JWT
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=')
+    const payload = JSON.parse(atob(padded))
+
+    // Un JWT de acceso debe tener una fecha de expiración
+    if (typeof payload.exp !== 'number') {
+      return false
+    }
+
+    // Añadir un margen de 30 segundos
+    return payload.exp * 1000 > Date.now() + 30_000
+  } catch {
+    return false
+  }
 }

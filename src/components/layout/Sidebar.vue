@@ -14,17 +14,26 @@
       <ul>
         <li v-for="item in menuItems" :key="item.name">
           <RouterLink
+            v-if="item.action !== 'logout'"
             :to="item.route"
             class="menu-link"
             active-class="active"
             :data-title="item.name"
           >
             <i :class="item.icon"></i>
-
-            <span>
-              {{ item.name }}
-            </span>
+            <span>{{ item.name }}</span>
           </RouterLink>
+
+          <!-- Cerrar sesión -->
+          <button
+            v-else
+            class="menu-link logout-link"
+            :data-title="item.name"
+            @click="handleLogout"
+          >
+            <i :class="item.icon"></i>
+            <span>{{ item.name }}</span>
+          </button>
         </li>
       </ul>
     </nav>
@@ -33,14 +42,18 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { logout } from '@/services/oAuthService'
 
 defineProps({
   collapsed: {
     type: Boolean,
-
     default: false,
   },
 })
+
+function handleLogout() {
+  logout()
+}
 
 const menuItems = [
   {
@@ -95,6 +108,7 @@ const menuItems = [
     name: 'Cerrar sesión',
     icon: 'fa-solid fa-right-from-bracket',
     route: '/',
+    action: 'logout',
   },
 ]
 </script>
